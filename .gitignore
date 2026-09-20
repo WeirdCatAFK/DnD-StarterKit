@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Generated cut files and reference pages. Everything under out*/ comes from
+# `python generate.py`, so it is rebuilt rather than tracked -- and tracking it
+# means every kerf tweak shows up as a diff of thousands of path points.
+# Want the SVGs in the repo so people can cut without running Python? Delete
+# these two lines and commit out/ once.
+out/
+out_*/
+
+# Renderer and editor leftovers
+*.png.tmp
+*.bak
+*.orig
+*.swp
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# The figure artwork is Xykit's "RPG Meeples", personal-use only:
+# https://www.printables.com/model/212336-rpg-meeples
+# It is tracked so the generator runs straight from a clone. If this repo goes
+# public and you would rather not redistribute someone else's files, uncomment
+# the line below and tell people in the readme to download the set themselves.
+# Meeples svg/
