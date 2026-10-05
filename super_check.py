@@ -327,10 +327,10 @@ def check_machine_limits():
         if "sheet" in name:
             ok = x0 >= G.MARGIN - 1e-3 and y0 >= G.MARGIN - 1e-3 and \
                  x1 <= G.SHEET - G.MARGIN + 1e-3 and y1 <= G.SHEET - G.MARGIN + 1e-3
-            check(ok, f"{name}: inside the 380mm safe area",
+            check(ok, f"{name}: inside the {G.SAFE:.0f}mm safe area",
                   f"{x1-x0:.1f} x {y1-y0:.1f}mm at [{x0:.1f},{y0:.1f}]")
         else:
-            check(x1 <= 400 and y1 <= 400, f"{name}: fits the bed",
+            check(x1 <= G.SHEET and y1 <= G.SHEET, f"{name}: fits the bed",
                   f"{x1-x0:.1f} x {y1-y0:.1f}mm")
 
 
@@ -349,6 +349,8 @@ def check_fit_test():
           f"{len(layers.get('cut', []))} cut shapes")
 
 
+
+
 def _cli():
     """Optional: check a set generated for a different plywood."""
     global OUT
@@ -357,9 +359,13 @@ def _cli():
     ap.add_argument("--out", default="out")
     ap.add_argument("--thickness", type=float)
     ap.add_argument("--kerf", type=float)
+    ap.add_argument("--sheet", type=float)
+    ap.add_argument("--safe", type=float)
+    ap.add_argument("--squares", type=int)
+    ap.add_argument("--grid", type=float)
     a = ap.parse_args()
     OUT = a.out
-    G.apply_config(a.thickness, a.kerf)
+    G.apply_config(a.thickness, a.kerf, a.sheet, a.safe, a.squares, a.grid)
 
 
 def main():

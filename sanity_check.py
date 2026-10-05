@@ -61,8 +61,8 @@ def check_tile():
     section("1. TILE GEOMETRY")
     o = G.tile_outline()
     x0, y0, x1, y1 = svgpath.bbox(o)
-    check(near(x1 - x0, 300.0, 1e-9) and near(y1 - y0, 300.0, 1e-9),
-          "tile is exactly 300 x 300mm", f"{x1-x0:.4f} x {y1-y0:.4f}")
+    check(near(x1 - x0, G.TILE, 1e-9) and near(y1 - y0, G.TILE, 1e-9),
+          f"tile is exactly {G.TILE:.0f} x {G.TILE:.0f}mm", f"{x1-x0:.4f} x {y1-y0:.4f}")
     check(near(G.TILE, G.GRID * G.SQUARES), "grid closes on the tile",
           f"{G.SQUARES} x {G.GRID}mm = {G.TILE}mm")
 
@@ -359,9 +359,13 @@ def _cli():
     ap.add_argument("--out", default="out")
     ap.add_argument("--thickness", type=float)
     ap.add_argument("--kerf", type=float)
+    ap.add_argument("--sheet", type=float)
+    ap.add_argument("--safe", type=float)
+    ap.add_argument("--squares", type=int)
+    ap.add_argument("--grid", type=float)
     a = ap.parse_args()
     OUT = a.out
-    G.apply_config(a.thickness, a.kerf)
+    G.apply_config(a.thickness, a.kerf, a.sheet, a.safe, a.squares, a.grid)
 
 
 def main():

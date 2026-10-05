@@ -60,6 +60,11 @@ Figures: 6 hero classes (Fighter, Mage, Rogue, Cleric, Ranger, Bard), 3 NPCs
 slime), an ogre, and a dragon boss on a 36mm base. Props: chest ×2, barrel ×2,
 table, brazier, stairs, altar, bookshelf, crate, well, pillar ×2.
 
+### Usage
+
+1. Run `python generate.py` to produce the SVG files in the `out/` folder.
+2. (Optional) If you use software like LaserGRBL that struggles with layered/multi-color SVGs, run `python split_colors.py` to automatically split the output files into separate files for cuts and engraving.
+
 ---
 
 ## Files

@@ -31,22 +31,22 @@ import svgpath
 THICKNESS = 3.0        # measured plywood thickness, mm
 KERF = 0.15            # measured laser kerf (half-width taken off each side)
 
-GRID = 30.0            # grid pitch, mm
-SQUARES = 10           # squares per tile edge -> TILE = GRID * SQUARES
-SHEET = 400.0          # plywood sheet, mm square
-SAFE = 380.0           # keep all geometry inside this, centred: 10mm margin
+GRID = 25.0            # grid pitch, mm
+SQUARES = 8            # squares per tile edge -> TILE = GRID * SQUARES
+SHEET = 300.0          # plywood sheet, mm square
+SAFE = 290.0           # keep all geometry inside this, centred: 5mm margin
 
-HOLE = 6.0             # finished vertex hole, mm square
-WALL_H = 14.0          # wall body height; tabs add THICKNESS below it
+HOLE = 5.9             # finished vertex hole, mm square
+WALL_H = 12.0          # wall body height; tabs add THICKNESS below it
 TAB_LEN = 2.6          # finished tab length: the near half of a vertex hole
 TAB_CLEAR = 0.25       # gap from the hole centre-line, so two tabs never meet
 
-FIG_BOX = 24.0         # figures fit inside this box, mm
-MONSTER_H = 22.0       # monster height, mm
-PROP_H = 20.0          # prop height, mm
-BASE_MIN, BASE_MAX = 24.0, 28.0
-BIG_BASE = 36.0        # boss base; capped by the 40mm border strip it is cut from
-BOSS_H = 30.0          # the dragon is cut larger than the rank-and-file monsters
+FIG_BOX = 20.0         # figures fit inside this box, mm
+MONSTER_H = 18.5       # monster height, mm
+PROP_H = 16.5          # prop height, mm
+BASE_MIN, BASE_MAX = 20.0, 23.5
+BIG_BASE = 30.0        # boss base; capped by the border strip it is cut from
+BOSS_H = 25.0          # the dragon is cut larger than the rank-and-file monsters
 
 CLOSE_R = 0.8          # morphological closing on class art, mm
 CLOSE_R_MONSTER = 0.45
@@ -68,22 +68,35 @@ KEY_DRAW = HOLE - 0.3 + 2 * KERF     # seam key, 0.3mm loose in the hole
 ORIGIN = (SHEET - TILE) / 2          # tile position on the sheet
 MARGIN = (SHEET - SAFE) / 2
 
-def apply_config(thickness=None, kerf=None):
-    """Re-derive everything that depends on THICKNESS or KERF.
+def apply_config(thickness=None, kerf=None, sheet=None, safe=None, squares=None, grid=None):
+    """Re-derive everything that depends on THICKNESS, KERF, SHEET, SAFE, SQUARES or GRID.
 
-    Lets one run of the generator produce a set for a different plywood without
-    editing the file. Clears the figure cache because a figure's base slot is
-    measured over the bottom THICKNESS mm of its outline.
+    Lets one run of the generator produce a set for a different plywood or sheet
+    size without editing the file. Clears the figure cache because a figure's
+    base slot is measured over the bottom THICKNESS mm of its outline.
     """
-    global THICKNESS, KERF, HOLE_DRAW, SLOT_DRAW, TAB_DRAW, KEY_DRAW
+    global THICKNESS, KERF, SHEET, SAFE, SQUARES, GRID
+    global TILE, VERTS, HOLE_DRAW, SLOT_DRAW, TAB_DRAW, KEY_DRAW, ORIGIN, MARGIN
     if thickness is not None:
         THICKNESS = float(thickness)
     if kerf is not None:
         KERF = float(kerf)
+    if sheet is not None:
+        SHEET = float(sheet)
+    if safe is not None:
+        SAFE = float(safe)
+    if squares is not None:
+        SQUARES = int(squares)
+    if grid is not None:
+        GRID = float(grid)
+    TILE = GRID * SQUARES
+    VERTS = SQUARES + 1
     HOLE_DRAW = HOLE - 2 * KERF
     SLOT_DRAW = THICKNESS - 2 * KERF
     TAB_DRAW = TAB_LEN + 2 * KERF
     KEY_DRAW = HOLE - 0.3 + 2 * KERF
+    ORIGIN = (SHEET - TILE) / 2
+    MARGIN = (SHEET - SAFE) / 2
     _fig_cache.clear()
     _sheet_cache.clear()
 
@@ -583,12 +596,14 @@ def sheet_pieces(which):
     p = []
     if which == "A":
         p += figure_set(meeples.HEROES, "meeple")
+        p += figure_set(["barrel", "barrel"], "prop")
         p += [wall(1) for _ in range(10)]
         p += [wall(2) for _ in range(5)]
         p += [corner_plate(True), corner_plate(False)] * 4
         p += [door(), door()]
     elif which == "B":
         p += figure_set(["goblin", "goblin", "skeleton", "skeleton", "orc", "rat", "bat", "slime"], "monster")
+        p += figure_set(meeples.NPCS, "meeple")
         p += [wall(2) for _ in range(9)]
         p += [wall(1) for _ in range(4)]
         p += [corner_plate(True), corner_plate(False)] * 4
@@ -596,11 +611,10 @@ def sheet_pieces(which):
     elif which == "C":
         p += figure_set(["ogre"], "monster")
         p += figure_set(["dragon"], "monster")
-        p += figure_set(meeples.NPCS, "meeple")
         p += [wall(3) for _ in range(6)]
         p += [wall(1) for _ in range(4)]
         p += [corner_plate(True), corner_plate(False)] * 3
-        p += figure_set(["chest", "chest", "barrel", "barrel", "table", "brazier"], "prop")
+        p += figure_set(["chest", "chest", "table", "brazier"], "prop")
     else:
         p += figure_set(["stairs", "altar", "bookshelf", "crate", "well", "pillar", "pillar"], "prop")
         p += [wall(5) for _ in range(4)]
@@ -709,13 +723,18 @@ def main():
     ap.add_argument("--out", default="out")
     ap.add_argument("--thickness", type=float, help="plywood thickness in mm (default 3.0)")
     ap.add_argument("--kerf", type=float, help="laser kerf in mm (default 0.15)")
+    ap.add_argument("--sheet", type=float, help="plywood sheet size in mm (default 300.0)")
+    ap.add_argument("--safe", type=float, help="safe working area in mm (default 280.0)")
+    ap.add_argument("--squares", type=int, help="squares per tile edge (default 8)")
+    ap.add_argument("--grid", type=float, help="grid pitch in mm (default 25.0)")
     ap.add_argument("--no-png", action="store_true",
                     help="skip the PNG copies of the assembly diagram and piece list")
     ap.add_argument("--dpi", type=int, default=render.DPI,
                     help=f"resolution of those PNGs (default {render.DPI})")
     args = ap.parse_args()
-    apply_config(args.thickness, args.kerf)
-    print(f"THICKNESS {THICKNESS}mm  KERF {KERF}mm  ->  slot {SLOT_DRAW:.2f}mm, "
+    apply_config(args.thickness, args.kerf, args.sheet, args.safe, args.squares, args.grid)
+    print(f"SHEET {SHEET:.0f}x{SHEET:.0f}mm  TILE {TILE:.0f}x{TILE:.0f}mm ({SQUARES}x{SQUARES} squares @ {GRID:.0f}mm)  "
+          f"THICKNESS {THICKNESS}mm  KERF {KERF}mm  ->  slot {SLOT_DRAW:.2f}mm, "
           f"hole {HOLE_DRAW:.2f}mm, tab {TAB_DRAW:.2f}mm")
 
     built = []

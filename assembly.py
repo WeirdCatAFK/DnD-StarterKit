@@ -211,27 +211,36 @@ def build(path, G):
     s.text("DROP A KEY IN TO LOCK", sx, sy + 39, 2.8, HINT, 0.3)
 
     # --------------------------------------------------------------- 5 layout
-    s.panel(8, 226, 384, 64, "5  EXAMPLE LAYOUT   20 x 20 SQUARES")
-    g = 2.5
+    tot = 2 * G.SQUARES
+    s.panel(8, 226, 384, 64, f"5  EXAMPLE LAYOUT   {tot} x {tot} SQUARES")
+    g = 50.0 / tot
     ox, oy = 20, 238
-    for i in range(21):
-        s.line(ox + i * g, oy, ox + i * g, oy + 20 * g, "#e2e2e2", 0.12)
-        s.line(ox, oy + i * g, ox + 20 * g, oy + i * g, "#e2e2e2", 0.12)
-    s.line(ox + 10 * g, oy, ox + 10 * g, oy + 20 * g, HINT, 0.3, dash="1.5 1.5")
-    s.line(ox, oy + 10 * g, ox + 20 * g, oy + 10 * g, HINT, 0.3, dash="1.5 1.5")
-    rooms = [(1, 1, 7, 6), (10, 1, 9, 5), (2, 9, 6, 9), (10, 8, 8, 10)]
+    for i in range(tot + 1):
+        s.line(ox + i * g, oy, ox + i * g, oy + tot * g, "#e2e2e2", 0.12)
+        s.line(ox, oy + i * g, ox + tot * g, oy + i * g, "#e2e2e2", 0.12)
+    s.line(ox + G.SQUARES * g, oy, ox + G.SQUARES * g, oy + tot * g, HINT, 0.3, dash="1.5 1.5")
+    s.line(ox, oy + G.SQUARES * g, ox + tot * g, oy + G.SQUARES * g, HINT, 0.3, dash="1.5 1.5")
+    if G.SQUARES == 5:
+        rooms = [(1, 1, 3, 3), (5, 1, 4, 3), (1, 5, 3, 4), (5, 5, 4, 4)]
+        doors = [(4, 2), (2, 5), (5, 7), (7, 5)]
+    elif G.SQUARES == 8:
+        rooms = [(1, 1, 6, 5), (8, 1, 7, 4), (1, 7, 5, 8), (8, 6, 7, 9)]
+        doors = [(6, 2), (3, 7), (8, 9), (11, 6)]
+    else:
+        rooms = [(1, 1, 7, 6), (10, 1, 9, 5), (2, 9, 6, 9), (10, 8, 8, 10)]
+        doors = [(8, 3), (5, 9), (10, 12), (14, 8)]
     for rx, ry, rw, rh in rooms:
         s.poly([([(ox + rx * g, oy + ry * g), (ox + (rx + rw) * g, oy + ry * g),
                   (ox + (rx + rw) * g, oy + (ry + rh) * g), (ox + rx * g, oy + (ry + rh) * g)], True)],
                fill="none", stroke=INK, sw=0.7)
-    for dx, dy in [(8, 3), (5, 9), (10, 12), (14, 8)]:
+    for dx, dy in doors:
         s.line(ox + dx * g - 0.9, oy + dy * g, ox + dx * g + 0.9, oy + dy * g, ACCENT, 1.4)
-    s.text("HEAVY LINE = WALL RUN     RED = DOOR     DASHED = TILE SEAM", ox + 20 * g + 8, oy + 10, 3.0, HINT, 0.32)
-    s.text("WALLS COME IN 1 2 3 AND 5 SQUARE LENGTHS", ox + 20 * g + 8, oy + 17, 3.0, HINT, 0.32)
-    s.text("USE ONE LONG PIECE PER RUN - SEAMS ONLY", ox + 20 * g + 8, oy + 24, 3.0, HINT, 0.32)
-    s.text("AT CORNERS AND DOORWAYS", ox + 20 * g + 8, oy + 31, 3.0, HINT, 0.32)
-    s.text("ONE WALL DIRECTION PER VERTEX - USE AN", ox + 20 * g + 8, oy + 41, 3.0, HINT, 0.32)
-    s.text("L PIECE WHERE TWO RUNS MEET", ox + 20 * g + 8, oy + 48, 3.0, HINT, 0.32)
+    s.text("HEAVY LINE = WALL RUN     RED = DOOR     DASHED = TILE SEAM", ox + tot * g + 8, oy + 10, 3.0, HINT, 0.32)
+    s.text("WALLS COME IN 1 2 3 AND 5 SQUARE LENGTHS", ox + tot * g + 8, oy + 17, 3.0, HINT, 0.32)
+    s.text("USE ONE LONG PIECE PER RUN - SEAMS ONLY", ox + tot * g + 8, oy + 24, 3.0, HINT, 0.32)
+    s.text("AT CORNERS AND DOORWAYS", ox + tot * g + 8, oy + 31, 3.0, HINT, 0.32)
+    s.text("ONE WALL DIRECTION PER VERTEX - USE AN", ox + tot * g + 8, oy + 41, 3.0, HINT, 0.32)
+    s.text("L PIECE WHERE TWO RUNS MEET", ox + tot * g + 8, oy + 48, 3.0, HINT, 0.32)
 
     s.credit(8, 294.5)
 
